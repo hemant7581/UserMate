@@ -20,10 +20,12 @@ const UserList = () => {
 
         // Check if a new user was passed from the CreateUser component and add it to the list
         if (user) {
-          setUsers((prevUsers) => [...prevUsers, user]); // Add the new user to the existing users
+          // Assign a temporary ID to the newly added user since it is not persisted in the backend
+          const userWithTemporaryId = { ...user, id: Date.now() }; 
+          setUsers((prevUsers) => [...prevUsers, userWithTemporaryId]); // Add the new user to the existing users
         }
       } catch (err) {
-        setError('Failed to fetch users.', err);
+        setError(`Failed to fetch users: ${err.message}`);
       }
     };
     getUsers();
@@ -45,21 +47,29 @@ const UserList = () => {
   const handleSave = async (e) => {
     e.preventDefault();
     try {
-      const updatedUser = await updateUser(editingUser.id, editedUser); // Update user via API
-      setUsers(users.map((u) => (u.id === editingUser.id ? updatedUser : u))); // Update user list with new data
+      if (editingUser.id < 11) {
+        // Update existing user via API
+        const updatedUser = await updateUser(editingUser.id, editedUser); 
+        setUsers(users.map((user) => (user.id === editingUser.id ? updatedUser : user))); // Update user list with new data
+      } else {
+        // Temporarily update the user locally for the newly created user (ID > 10)
+        setUsers(users.map((user) => (user.id === editingUser.id ? { ...user, ...editedUser } : user)));
+      }
       setEditingUser(null); // Reset editing state
     } catch (err) {
-      setError('Failed to update user: ' + err.message);
+      setError(`Failed to update user: ${err.message}`);
     }
   };
 
   // Handle delete user
   const handleDelete = async (id) => {
     try {
-      await deleteUser(id); // Delete user via API
+      if (id < 11) {
+        await deleteUser(id); // Delete user via API if it has a backend ID
+      }
       setUsers(users.filter((user) => user.id !== id)); // Update UI after deletion
     } catch (err) {
-      setError('Failed to delete user.', err);
+      setError(`Failed to delete user: ${err.message}`);
     }
   };
 
