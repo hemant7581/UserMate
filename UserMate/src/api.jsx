@@ -1,51 +1,22 @@
-const API_URL = 'https://jsonplaceholder.typicode.com/users';
+import axios from 'axios';
 
-// Fetch all users
+const BASE_URL = 'https://jsonplaceholder.typicode.com/users';
+
 export const fetchUsers = async () => {
-  try {
-    const response = await fetch(API_URL);
-    return await response.json();
-  } catch (error) {
-    throw new Error('Failed to fetch users',error);
-  }
+  const response = await axios.get(BASE_URL);
+  return response.data;
 };
 
-// Create new user
-export const createUser = async (userData) => {
-  try {
-    const response = await fetch(API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(userData),
-    });
-    return await response.json();
-  } catch (error) {
-    throw new Error('Failed to create user',error);
-  }
+export const createUser = async (user) => {
+  const response = await axios.post(BASE_URL, user);
+  return response.data;
 };
 
-// Update user by ID
-export const updateUser = async (id, userData) => {
-  try {
-    const response = await fetch(`${API_URL}/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(userData),
-    });
-    return await response.json();
-  } catch (error) {
-    throw new Error('Failed to update user',error);
-  }
+export const updateUser = async (id, user) => {
+  const response = await axios.put(`${BASE_URL}/${id}`, user);
+  return response.data;
 };
 
-// Delete user by ID
 export const deleteUser = async (id) => {
-  try {
-    const response = await fetch(`${API_URL}/${id}`, {
-      method: 'DELETE',
-    });
-    return response.ok;
-  } catch (error) {
-    throw new Error('Failed to delete user',error);
-  }
+  await axios.delete(`${BASE_URL}/${id}`);
 };
